@@ -15,6 +15,7 @@ import type { DesignScheme } from '~/types/design-scheme';
 import { MCPService } from '~/lib/services/mcpService';
 import { StreamRecoveryManager } from '~/lib/.server/llm/stream-recovery';
 import { messagesHaveOrchestratedBuild } from '~/lib/orchestration/build-message-utils';
+import { getServerEnv } from '~/lib/.server/get-server-env';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
@@ -123,7 +124,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
           summary = await createSummary({
             messages: [...processedMessages],
-            env: context.cloudflare?.env,
+            env: getServerEnv(context),
             apiKeys,
             providerSettings,
             promptId,
@@ -165,7 +166,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           console.log(`Messages count: ${processedMessages.length}`);
           filteredFiles = await selectContext({
             messages: [...processedMessages],
-            env: context.cloudflare?.env,
+            env: getServerEnv(context),
             apiKeys,
             files,
             providerSettings,
@@ -271,7 +272,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
             const result = await streamText({
               messages: [...processedMessages],
-              env: context.cloudflare?.env,
+              env: getServerEnv(context),
               options,
               apiKeys,
               files,
@@ -312,7 +313,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
         const result = await streamText({
           messages: [...processedMessages],
-          env: context.cloudflare?.env,
+          env: getServerEnv(context),
           options,
           apiKeys,
           files,

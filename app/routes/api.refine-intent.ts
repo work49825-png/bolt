@@ -3,6 +3,7 @@ import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/c
 import { refineIntent } from '~/lib/orchestration/intent-refiner.server';
 import type { ProviderInfo } from '~/types/model';
 import { createScopedLogger } from '~/utils/logger';
+import { getServerEnv } from '~/lib/.server/get-server-env';
 
 const logger = createScopedLogger('api.refine-intent');
 
@@ -36,7 +37,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
       providerName: provider.name,
       apiKeys,
       providerSettings,
-      env: context.cloudflare?.env as Env,
+      env: getServerEnv(context),
     });
 
     return json({ buildSpec });

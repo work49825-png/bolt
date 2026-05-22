@@ -1,4 +1,5 @@
 import { cloudflareDevProxyVitePlugin as remixCloudflareDevProxy, vitePlugin as remixVitePlugin } from '@remix-run/dev';
+import { vercelPreset } from '@vercel/remix/vite';
 import UnoCSS from 'unocss/vite';
 import { defineConfig, type ViteDevServer } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -10,6 +11,8 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 dotenv.config({ path: '.env' });
 dotenv.config();
+
+const isVercelBuild = process.env.VERCEL === '1';
 
 export default defineConfig((config) => {
   return {
@@ -45,6 +48,7 @@ export default defineConfig((config) => {
       },
       config.mode === 'development' && remixCloudflareDevProxy(),
       remixVitePlugin({
+        presets: isVercelBuild ? [vercelPreset()] : [],
         future: {
           v3_fetcherPersist: true,
           v3_relativeSplatPath: true,

@@ -6,6 +6,8 @@ import { renderHeadToString } from 'remix-island';
 import { Head } from './root';
 import { themeStore } from '~/lib/stores/theme';
 
+const isVercelRuntime = process.env.VERCEL === '1';
+
 export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
@@ -13,7 +15,19 @@ export default async function handleRequest(
   remixContext: any,
   _loadContext: AppLoadContext,
 ) {
-  // await initializeModelList({});
+  responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
+  responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
+
+  if (isVercelRuntime) {
+    const { handleRequest: vercelHandleRequest } = await import('@vercel/remix');
+
+    return vercelHandleRequest(
+      request,
+      responseStatusCode,
+      responseHeaders,
+      <RemixServer context={remixContext} url={request.url} />,
+    );
+  }
 
   const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
     signal: request.signal,
@@ -69,9 +83,6 @@ export default async function handleRequest(
   }
 
   responseHeaders.set('Content-Type', 'text/html');
-
-  responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
-  responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
 
   return new Response(body, {
     headers: responseHeaders,
