@@ -1,0 +1,158 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - link "Skip to content" [ref=e4] [cursor=pointer]:
+      - /url: "#start-of-content"
+    - banner [ref=e6]:
+      - heading "Navigation Menu" [level=2] [ref=e7]
+      - generic [ref=e8]:
+        - link "Homepage" [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img [ref=e11]
+        - generic [ref=e13]:
+          - navigation "Global" [ref=e16]:
+            - list [ref=e17]:
+              - listitem [ref=e18]:
+                - button "Platform" [ref=e20] [cursor=pointer]:
+                  - text: Platform
+                  - img [ref=e21]
+              - listitem [ref=e23]:
+                - button "Solutions" [ref=e25] [cursor=pointer]:
+                  - text: Solutions
+                  - img [ref=e26]
+              - listitem [ref=e28]:
+                - button "Resources" [ref=e30] [cursor=pointer]:
+                  - text: Resources
+                  - img [ref=e31]
+              - listitem [ref=e33]:
+                - button "Open Source" [ref=e35] [cursor=pointer]:
+                  - text: Open Source
+                  - img [ref=e36]
+              - listitem [ref=e38]:
+                - button "Enterprise" [ref=e40] [cursor=pointer]:
+                  - text: Enterprise
+                  - img [ref=e41]
+              - listitem [ref=e43]:
+                - link "Pricing" [ref=e44] [cursor=pointer]:
+                  - /url: https://github.com/pricing
+                  - generic [ref=e45]: Pricing
+          - generic [ref=e46]:
+            - button "Search or jump to…" [ref=e49] [cursor=pointer]:
+              - img [ref=e51]
+            - link "Sign in" [ref=e54] [cursor=pointer]:
+              - /url: /login?return_to=https%3A%2F%2Fgithub.com%2Fwork49825-png%2Fbolt
+            - link "Sign up" [ref=e55] [cursor=pointer]:
+              - /url: /signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E%2Ffiles%2Fdisambiguate&source=header-repo&source_repo=work49825-png%2Fbolt
+            - button "Appearance settings" [ref=e58] [cursor=pointer]:
+              - img
+  - main [ref=e62]:
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e66]:
+          - img [ref=e67]
+          - link "work49825-png" [ref=e70] [cursor=pointer]:
+            - /url: /work49825-png
+          - generic [ref=e71]: /
+          - strong [ref=e72]:
+            - link "bolt" [ref=e73] [cursor=pointer]:
+              - /url: /work49825-png/bolt
+          - generic [ref=e74]: Public
+        - generic [ref=e75]:
+          - list:
+            - listitem [ref=e76]:
+              - link "You must be signed in to change notification settings" [ref=e77] [cursor=pointer]:
+                - /url: /login?return_to=%2Fwork49825-png%2Fbolt
+                - img [ref=e78]
+                - text: Notifications
+            - listitem [ref=e80]:
+              - link "Fork 0" [ref=e81] [cursor=pointer]:
+                - /url: /login?return_to=%2Fwork49825-png%2Fbolt
+                - img [ref=e82]
+                - text: Fork
+                - generic "0" [ref=e84]
+            - listitem [ref=e85]:
+              - link "You must be signed in to star a repository" [ref=e87] [cursor=pointer]:
+                - /url: /login?return_to=%2Fwork49825-png%2Fbolt
+                - img [ref=e88]
+                - text: Star
+                - generic "0 users starred this repository" [ref=e90]: "0"
+      - navigation "Repository" [ref=e91]:
+        - list [ref=e92]:
+          - listitem [ref=e93]:
+            - link "Code" [ref=e94] [cursor=pointer]:
+              - /url: /work49825-png/bolt
+              - img [ref=e95]
+              - generic [ref=e97]: Code
+          - listitem [ref=e98]:
+            - link "Issues" [ref=e99] [cursor=pointer]:
+              - /url: /work49825-png/bolt/issues
+              - img [ref=e100]
+              - generic [ref=e103]: Issues
+          - listitem [ref=e104]:
+            - link "Pull requests" [ref=e105] [cursor=pointer]:
+              - /url: /work49825-png/bolt/pulls
+              - img [ref=e106]
+              - generic [ref=e108]: Pull requests
+          - listitem [ref=e109]:
+            - link "Actions" [ref=e110] [cursor=pointer]:
+              - /url: /work49825-png/bolt/actions
+              - img [ref=e111]
+              - generic [ref=e113]: Actions
+          - listitem [ref=e114]:
+            - link "Projects" [ref=e115] [cursor=pointer]:
+              - /url: /work49825-png/bolt/projects
+              - img [ref=e116]
+              - generic [ref=e118]: Projects
+          - listitem [ref=e119]:
+            - link "Security and quality" [ref=e120] [cursor=pointer]:
+              - /url: /work49825-png/bolt/security
+              - img [ref=e121]
+              - generic [ref=e123]: Security and quality
+          - listitem [ref=e124]:
+            - link "Insights" [ref=e125] [cursor=pointer]:
+              - /url: /work49825-png/bolt/pulse
+              - img [ref=e126]
+              - generic [ref=e128]: Insights
+    - generic [ref=e132]:
+      - img [ref=e133]
+      - heading "This repository is empty." [level=3] [ref=e136]
+      - paragraph [ref=e137]:
+        - text: Care to check out the
+        - link "GitHub Channel on YouTube" [ref=e138] [cursor=pointer]:
+          - /url: https://youtube.com/GitHub
+        - text: while you wait?
+  - contentinfo [ref=e139]:
+    - heading "Footer" [level=2] [ref=e140]
+    - generic [ref=e141]:
+      - generic [ref=e142]:
+        - link "GitHub Homepage" [ref=e143] [cursor=pointer]:
+          - /url: https://github.com
+          - img [ref=e144]
+        - generic [ref=e146]: © 2026 GitHub, Inc.
+      - navigation "Footer" [ref=e147]:
+        - heading "Footer navigation" [level=3] [ref=e148]
+        - list "Footer navigation" [ref=e149]:
+          - listitem [ref=e150]:
+            - link "Terms" [ref=e151] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/github-terms/github-terms-of-service
+          - listitem [ref=e152]:
+            - link "Privacy" [ref=e153] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement
+          - listitem [ref=e154]:
+            - link "Security" [ref=e155] [cursor=pointer]:
+              - /url: https://github.com/security
+          - listitem [ref=e156]:
+            - link "Status" [ref=e157] [cursor=pointer]:
+              - /url: https://www.githubstatus.com/
+          - listitem [ref=e158]:
+            - link "Community" [ref=e159] [cursor=pointer]:
+              - /url: https://github.community/
+          - listitem [ref=e160]:
+            - link "Docs" [ref=e161] [cursor=pointer]:
+              - /url: https://docs.github.com/
+          - listitem [ref=e162]:
+            - link "Contact" [ref=e163] [cursor=pointer]:
+              - /url: https://support.github.com?tags=dotcom-footer
+          - listitem [ref=e164]:
+            - button "Manage cookies" [ref=e166] [cursor=pointer]
+          - listitem [ref=e167]:
+            - button "Do not share my personal information" [ref=e169] [cursor=pointer]
