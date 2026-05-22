@@ -1,6 +1,7 @@
 import { json, type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { createScopedLogger } from '~/utils/logger';
+import { getEnvValue } from '~/lib/.server/get-server-env';
 
 const logger = createScopedLogger('api.supabase.create-project');
 
@@ -10,12 +11,7 @@ function getToken(request: Request, context: ActionFunctionArgs['context']) {
   const cookieHeader = request.headers.get('Cookie');
   const apiKeys = getApiKeysFromCookie(cookieHeader);
 
-  return (
-    headerToken ||
-    apiKeys.VITE_SUPABASE_ACCESS_TOKEN ||
-    context?.cloudflare?.env?.VITE_SUPABASE_ACCESS_TOKEN ||
-    process.env.VITE_SUPABASE_ACCESS_TOKEN
-  );
+  return headerToken || apiKeys.VITE_SUPABASE_ACCESS_TOKEN || getEnvValue(context, 'VITE_SUPABASE_ACCESS_TOKEN');
 }
 
 export async function action({ context, request }: ActionFunctionArgs) {

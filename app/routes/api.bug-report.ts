@@ -1,4 +1,5 @@
 import { json, type ActionFunctionArgs } from '@remix-run/cloudflare';
+import { getEnvValue } from '~/lib/.server/get-server-env';
 import { Octokit } from '@octokit/rest';
 import { z } from 'zod';
 
@@ -191,10 +192,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
     }
 
     // Get GitHub configuration
-    const githubToken =
-      (context?.cloudflare?.env as any)?.GITHUB_BUG_REPORT_TOKEN || process.env.GITHUB_BUG_REPORT_TOKEN;
-    const targetRepo =
-      (context?.cloudflare?.env as any)?.BUG_REPORT_REPO || process.env.BUG_REPORT_REPO || 'stackblitz-labs/bolt.diy';
+    const githubToken = getEnvValue(context, 'GITHUB_BUG_REPORT_TOKEN');
+    const targetRepo = getEnvValue(context, 'BUG_REPORT_REPO') || 'stackblitz-labs/bolt.diy';
 
     if (!githubToken) {
       console.error('GitHub bug report token not configured');

@@ -6,7 +6,7 @@ import { renderHeadToString } from 'remix-island';
 import { Head } from './root';
 import { themeStore } from '~/lib/stores/theme';
 
-const isVercelRuntime = process.env.VERCEL === '1';
+import { isVercelRuntime } from '~/lib/.server/get-server-env';
 
 export default async function handleRequest(
   request: Request,
@@ -18,7 +18,7 @@ export default async function handleRequest(
   responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
   responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
 
-  if (isVercelRuntime) {
+  if (isVercelRuntime()) {
     const { handleRequest: vercelHandleRequest } = await import('@vercel/remix');
 
     return vercelHandleRequest(

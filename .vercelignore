@@ -1,0 +1,2 @@
+# Cloudflare Pages worker — must not deploy on Vercel (conflicts with Remix serverless)
+functions

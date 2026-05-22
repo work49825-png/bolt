@@ -2,6 +2,7 @@ import { json } from '@remix-run/cloudflare';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { withSecurity } from '~/lib/security';
 import type { GitHubUserResponse, GitHubStats } from '~/types/GitHub';
+import { getEnvValue } from '~/lib/.server/get-server-env';
 
 async function githubStatsLoader({ request, context }: { request: Request; context: any }) {
   try {
@@ -13,10 +14,8 @@ async function githubStatsLoader({ request, context }: { request: Request; conte
     const githubToken =
       apiKeys.GITHUB_API_KEY ||
       apiKeys.VITE_GITHUB_ACCESS_TOKEN ||
-      context?.cloudflare?.env?.GITHUB_TOKEN ||
-      context?.cloudflare?.env?.VITE_GITHUB_ACCESS_TOKEN ||
-      process.env.GITHUB_TOKEN ||
-      process.env.VITE_GITHUB_ACCESS_TOKEN;
+      getEnvValue(context, 'GITHUB_TOKEN') ||
+      getEnvValue(context, 'VITE_GITHUB_ACCESS_TOKEN');
 
     if (!githubToken) {
       return json({ error: 'GitHub token not found' }, { status: 401 });

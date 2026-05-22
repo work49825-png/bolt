@@ -1,6 +1,7 @@
 import { json } from '@remix-run/cloudflare';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { withSecurity } from '~/lib/security';
+import { getEnvValue } from '~/lib/.server/get-server-env';
 
 interface GitHubBranch {
   name: string;
@@ -56,10 +57,8 @@ async function githubBranchesLoader({ request, context }: { request: Request; co
       githubToken =
         apiKeys.GITHUB_API_KEY ||
         apiKeys.VITE_GITHUB_ACCESS_TOKEN ||
-        context?.cloudflare?.env?.GITHUB_TOKEN ||
-        context?.cloudflare?.env?.VITE_GITHUB_ACCESS_TOKEN ||
-        process.env.GITHUB_TOKEN ||
-        process.env.VITE_GITHUB_ACCESS_TOKEN ||
+        getEnvValue(context, 'GITHUB_TOKEN') ||
+        getEnvValue(context, 'VITE_GITHUB_ACCESS_TOKEN') ||
         '';
     }
 

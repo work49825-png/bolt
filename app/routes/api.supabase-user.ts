@@ -1,6 +1,7 @@
 import { json } from '@remix-run/cloudflare';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { withSecurity } from '~/lib/security';
+import { getEnvValue } from '~/lib/.server/get-server-env';
 
 async function supabaseUserLoader({ request, context }: { request: Request; context: any }) {
   try {
@@ -9,10 +10,7 @@ async function supabaseUserLoader({ request, context }: { request: Request; cont
     const apiKeys = getApiKeysFromCookie(cookieHeader);
 
     // Try to get Supabase token from various sources
-    const supabaseToken =
-      apiKeys.VITE_SUPABASE_ACCESS_TOKEN ||
-      context?.cloudflare?.env?.VITE_SUPABASE_ACCESS_TOKEN ||
-      process.env.VITE_SUPABASE_ACCESS_TOKEN;
+    const supabaseToken = apiKeys.VITE_SUPABASE_ACCESS_TOKEN || getEnvValue(context, 'VITE_SUPABASE_ACCESS_TOKEN');
 
     if (!supabaseToken) {
       return json({ error: 'Supabase token not found' }, { status: 401 });
@@ -91,10 +89,7 @@ async function supabaseUserAction({ request, context }: { request: Request; cont
     const apiKeys = getApiKeysFromCookie(cookieHeader);
 
     // Try to get Supabase token from various sources
-    const supabaseToken =
-      apiKeys.VITE_SUPABASE_ACCESS_TOKEN ||
-      context?.cloudflare?.env?.VITE_SUPABASE_ACCESS_TOKEN ||
-      process.env.VITE_SUPABASE_ACCESS_TOKEN;
+    const supabaseToken = apiKeys.VITE_SUPABASE_ACCESS_TOKEN || getEnvValue(context, 'VITE_SUPABASE_ACCESS_TOKEN');
 
     if (!supabaseToken) {
       return json({ error: 'Supabase token not found' }, { status: 401 });

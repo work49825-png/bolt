@@ -1,18 +1,6 @@
 import { json } from '@remix-run/cloudflare';
 import JSZip from 'jszip';
-
-// Function to detect if we're running in Cloudflare
-function isCloudflareEnvironment(context: any): boolean {
-  // Check if we're in production AND have Cloudflare Pages specific env vars
-  const isProduction = process.env.NODE_ENV === 'production';
-  const hasCfPagesVars = !!(
-    context?.cloudflare?.env?.CF_PAGES ||
-    context?.cloudflare?.env?.CF_PAGES_URL ||
-    context?.cloudflare?.env?.CF_PAGES_COMMIT_SHA
-  );
-
-  return isProduction && hasCfPagesVars;
-}
+import { getEnvValue, isCloudflarePagesRuntime } from '~/lib/.server/get-server-env';
 
 // Cloudflare-compatible method using GitHub Contents API
 async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
@@ -211,12 +199,11 @@ export async function loader({ request, context }: { request: Request; context: 
 
   try {
     // Access environment variables from Cloudflare context or process.env
-    const githubToken =
-      context?.cloudflare?.env?.GITHUB_TOKEN || process.env.GITHUB_TOKEN || process.env.VITE_GITHUB_ACCESS_TOKEN;
+    const githubToken = getEnvValue(context, 'GITHUB_TOKEN') || getEnvValue(context, 'VITE_GITHUB_ACCESS_TOKEN');
 
     let fileList;
 
-    if (isCloudflareEnvironment(context)) {
+    if (isCloudflarePagesRuntime(context)) {
       fileList = await fetchRepoContentsCloudflare(repo, githubToken);
     } else {
       fileList = await fetchRepoContentsZip(repo, githubToken);
