@@ -1,4 +1,5 @@
-import { convertToCoreMessages, streamText as _streamText, type Message } from 'ai';
+import { convertToCoreMessages, formatDataStreamPart, generateText, streamText as _streamText, type Message } from 'ai';
+import { isVercelRuntime } from '~/lib/.server/get-server-env';
 import { MAX_TOKENS, PROVIDER_COMPLETION_LIMITS, isReasoningModel, type FileMap } from './constants';
 import { getSystemPrompt } from '~/lib/common/prompts/prompts';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, MODIFICATIONS_TAG_NAME, PROVIDER_LIST, WORK_DIR } from '~/utils/constants';
@@ -318,6 +319,33 @@ export async function streamText(props: {
       2,
     ),
   );
+
+  /*
+   * Vercel Node can throw "Failed to process successful response" from @ai-sdk/openai streaming
+   * (ReadableStream pipeTo / Inter-TransformStream). Non-streaming generateText works reliably.
+   */
+  if (isVercelRuntime()) {
+    logger.info(`Using generateText fallback on Vercel for model "${modelDetails.name}"`);
+
+    const { text, usage, finishReason } = await generateText(streamParams);
+
+    return {
+      text: Promise.resolve(text),
+      textStream: (async function* () {
+        yield text;
+      })(),
+      fullStream: (async function* () {
+        yield { type: 'finish' as const, finishReason: finishReason ?? 'stop', usage };
+      })(),
+      mergeIntoDataStream(dataStream: { write: (part: string) => void }) {
+        const chunkSize = 120;
+
+        for (let i = 0; i < text.length; i += chunkSize) {
+          dataStream.write(formatDataStreamPart('text', text.slice(i, i + chunkSize)));
+        }
+      },
+    } as Awaited<ReturnType<typeof _streamText>>;
+  }
 
   return await _streamText(streamParams);
 }
