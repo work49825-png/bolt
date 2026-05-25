@@ -1,7 +1,5 @@
 import type { AppLoadContext } from '@remix-run/cloudflare';
 import { RemixServer } from '@remix-run/react';
-import { isbot } from 'isbot';
-import { renderToReadableStream } from 'react-dom/server';
 
 export default async function handleRequest(
   request: Request,
@@ -10,13 +8,13 @@ export default async function handleRequest(
   remixContext: any,
   _loadContext: AppLoadContext,
 ) {
-  // Lazy-import modules that pull in browser-only packages (e.g. react-dnd-html5-backend)
-  // at request time instead of at module load time, to avoid crashing the Node.js bundle.
-  const [{ renderHeadToString }, { Head }, { themeStore }] = await Promise.all([
-    import('remix-island'),
-    import('./root'),
-    import('~/lib/stores/theme'),
-  ]);
+  // All imports are dynamic to avoid pulling browser-only packages into the
+  // server bundle at module-load time (e.g. react-dnd-html5-backend, @webcontainer/api).
+  const { renderToReadableStream } = await import('react-dom/server');
+  const { isbot } = await import('isbot');
+  const { renderHeadToString } = await import('remix-island');
+  const { Head } = await import('./root');
+  const { themeStore } = await import('~/lib/stores/theme');
 
   responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
   responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
