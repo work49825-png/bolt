@@ -15,6 +15,12 @@ dotenv.config();
 const isVercelBuild = process.env.VERCEL === '1';
 
 export default defineConfig((config) => {
+  // isSsrBuild is true when Vite is compiling the server (SSR) bundle.
+  // We must NOT inject a process polyfill into the server bundle because
+  // it would shadow Node.js's real process.env and hide runtime env vars
+  // like OPENAI_API_KEY set as Vercel/Cloudflare environment variables.
+  const isSsrBuild = !!(config as any).isSsrBuild;
+
   return {
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
@@ -23,16 +29,17 @@ export default defineConfig((config) => {
       target: 'esnext',
     },
     plugins: [
-      nodePolyfills({
-        include: ['buffer', 'process', 'util', 'stream'],
-        globals: {
-          Buffer: true,
-          process: true,
-          global: true,
-        },
-        protocolImports: true,
-        exclude: ['child_process', 'fs', 'path'],
-      }),
+      !isSsrBuild &&
+        nodePolyfills({
+          include: ['buffer', 'process', 'util', 'stream'],
+          globals: {
+            Buffer: true,
+            process: true,
+            global: true,
+          },
+          protocolImports: true,
+          exclude: ['child_process', 'fs', 'path'],
+        }),
       {
         name: 'buffer-polyfill',
         transform(code, id) {

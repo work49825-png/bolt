@@ -27,14 +27,12 @@ export const loader: LoaderFunction = async ({ context, request }) => {
   /*
    * Check API key in order of precedence:
    * 1. Client-side API keys (from cookies)
-   * 2. Server environment variables (from Cloudflare env)
-   * 3. Process environment variables (from .env.local)
-   * 4. LLMManager environment variables
+   * 2. Server environment variables (from Cloudflare env / Vercel process.env)
+   * 3. LLMManager environment variables
    */
   const isSet = !!(
     apiKeys?.[provider] ||
     getEnvValue(context, envVarName) ||
-    process.env[envVarName] ||
     llmManager.env[envVarName]
   );
 
