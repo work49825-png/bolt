@@ -142,6 +142,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
     const [apiKeys, setApiKeys] = useState<Record<string, string>>(getApiKeysFromCookies());
     const [modelList, setModelList] = useState<ModelInfo[]>([]);
+    const [providerEnvKeysSet, setProviderEnvKeysSet] = useState<Record<string, boolean>>({});
     const [isModelSettingsCollapsed, setIsModelSettingsCollapsed] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
@@ -218,11 +219,39 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         }
 
         setIsModelLoading('all');
-        fetch('/api/models')
+        fetch('/api/models', { cache: 'no-store' })
           .then((response) => response.json())
           .then((data) => {
-            const typedData = data as { modelList: ModelInfo[] };
+            const typedData = data as {
+              modelList: ModelInfo[];
+              envKeysSet?: Record<string, boolean>;
+              defaultProvider?: ProviderInfo;
+            };
             setModelList(typedData.modelList);
+
+            if (typedData.envKeysSet) {
+              setProviderEnvKeysSet(typedData.envKeysSet);
+            }
+
+            const savedProviderName = Cookies.get('selectedProvider');
+            const envKeys = typedData.envKeysSet ?? {};
+            const savedHasKey =
+              savedProviderName && (apiKeys[savedProviderName] || envKeys[savedProviderName] === true);
+
+            if (typedData.defaultProvider && setProvider && (!savedProviderName || !savedHasKey)) {
+              setProvider(typedData.defaultProvider);
+
+              const preferredModel =
+                typedData.defaultProvider.staticModels?.find((m) => m.name.includes('gpt-4o-mini'))?.name ||
+                typedData.defaultProvider.staticModels?.[0]?.name;
+
+              if (preferredModel && setModel) {
+                setModel(preferredModel);
+                Cookies.set('selectedModel', preferredModel, { expires: 30 });
+              }
+
+              Cookies.set('selectedProvider', typedData.defaultProvider.name, { expires: 30 });
+            }
           })
           .catch((error) => {
             console.error('Error fetching model list:', error);
@@ -456,6 +485,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   setModel={setModel}
                   modelList={modelList}
                   apiKeys={apiKeys}
+                  providerEnvKeysSet={providerEnvKeysSet}
                   isModelLoading={isModelLoading}
                   onApiKeysChange={onApiKeysChange}
                   uploadedFiles={uploadedFiles}

@@ -28,6 +28,7 @@ interface ChatBoxProps {
   providerList: any[];
   modelList: any[];
   apiKeys: Record<string, string>;
+  providerEnvKeysSet?: Record<string, boolean>;
   isModelLoading: string | undefined;
   onApiKeysChange: (providerName: string, apiKey: string) => void;
   uploadedFiles: File[];
@@ -125,6 +126,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                   <APIKeyManager
                     provider={props.provider}
                     apiKey={props.apiKeys[props.provider.name] || ''}
+                    envKeySet={
+                      props.providerEnvKeysSet && props.provider.name in props.providerEnvKeysSet
+                        ? props.providerEnvKeysSet[props.provider.name]
+                        : undefined
+                    }
                     setApiKey={(key) => {
                       props.onApiKeysChange(props.provider.name, key);
                     }}

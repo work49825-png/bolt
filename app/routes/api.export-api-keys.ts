@@ -1,7 +1,8 @@
-import type { LoaderFunction } from '@remix-run/cloudflare';
+import { json, type LoaderFunction } from '@remix-run/cloudflare';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { getEnvValue, getServerEnvRecord } from '~/lib/.server/get-server-env';
+import { getNodeEnvValue } from '~/lib/.server/provider-env-keys';
 
 export const loader: LoaderFunction = async ({ context, request }) => {
   // Get API keys from cookie
@@ -31,12 +32,12 @@ export const loader: LoaderFunction = async ({ context, request }) => {
     }
 
     // Check environment variables in order of precedence
-    const envValue = getEnvValue(context, envVarName) || llmManager.env[envVarName];
+    const envValue = getEnvValue(context, envVarName) || getNodeEnvValue(envVarName) || llmManager.env[envVarName];
 
     if (envValue) {
       apiKeys[provider.name] = envValue;
     }
   }
 
-  return Response.json(apiKeys);
+  return json(apiKeys);
 };

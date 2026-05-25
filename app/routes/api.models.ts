@@ -1,6 +1,7 @@
 import { json } from '@remix-run/cloudflare';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import { getServerEnv } from '~/lib/.server/get-server-env';
+import { getProviderEnvKeysStatus, resolveDefaultProvider } from '~/lib/.server/provider-env-keys';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { ProviderInfo } from '~/types/model';
 import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
@@ -9,34 +10,28 @@ interface ModelsResponse {
   modelList: ModelInfo[];
   providers: ProviderInfo[];
   defaultProvider: ProviderInfo;
+  /** Whether each provider has an API key from cookies or server env (e.g. OPENAI_API_KEY on Vercel). */
+  envKeysSet: Record<string, boolean>;
 }
 
 let cachedProviders: ProviderInfo[] | null = null;
-let cachedDefaultProvider: ProviderInfo | null = null;
 
-function getProviderInfo(llmManager: LLMManager) {
+function toProviderInfo(provider: { name: string; staticModels: ProviderInfo['staticModels']; getApiKeyLink?: string; labelForGetApiKey?: string; icon?: string }): ProviderInfo {
+  return {
+    name: provider.name,
+    staticModels: provider.staticModels,
+    getApiKeyLink: provider.getApiKeyLink,
+    labelForGetApiKey: provider.labelForGetApiKey,
+    icon: provider.icon,
+  };
+}
+
+function getProvidersList(llmManager: LLMManager): ProviderInfo[] {
   if (!cachedProviders) {
-    cachedProviders = llmManager.getAllProviders().map((provider) => ({
-      name: provider.name,
-      staticModels: provider.staticModels,
-      getApiKeyLink: provider.getApiKeyLink,
-      labelForGetApiKey: provider.labelForGetApiKey,
-      icon: provider.icon,
-    }));
+    cachedProviders = llmManager.getAllProviders().map((provider) => toProviderInfo(provider));
   }
 
-  if (!cachedDefaultProvider) {
-    const defaultProvider = llmManager.getDefaultProvider();
-    cachedDefaultProvider = {
-      name: defaultProvider.name,
-      staticModels: defaultProvider.staticModels,
-      getApiKeyLink: defaultProvider.getApiKeyLink,
-      labelForGetApiKey: defaultProvider.labelForGetApiKey,
-      icon: defaultProvider.icon,
-    };
-  }
-
-  return { providers: cachedProviders, defaultProvider: cachedDefaultProvider };
+  return cachedProviders;
 }
 
 export async function loader({
@@ -60,7 +55,11 @@ export async function loader({
   const apiKeys = getApiKeysFromCookie(cookieHeader);
   const providerSettings = getProviderSettingsFromCookie(cookieHeader);
 
-  const { providers, defaultProvider } = getProviderInfo(llmManager);
+  const providers = getProvidersList(llmManager);
+  const allProviders = llmManager.getAllProviders();
+  const envKeysSet = getProviderEnvKeysStatus(allProviders, context, apiKeys);
+  const resolvedDefault = resolveDefaultProvider(allProviders, context, apiKeys);
+  const defaultProvider = toProviderInfo(resolvedDefault);
 
   let modelList: ModelInfo[] = [];
 
@@ -84,9 +83,17 @@ export async function loader({
     });
   }
 
-  return json<ModelsResponse>({
-    modelList,
-    providers,
-    defaultProvider,
-  });
+  return json<ModelsResponse>(
+    {
+      modelList,
+      providers,
+      defaultProvider,
+      envKeysSet,
+    },
+    {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+      },
+    },
+  );
 }

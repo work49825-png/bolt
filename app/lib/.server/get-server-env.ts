@@ -1,4 +1,6 @@
-type ServerContext = {
+import nodeProcess from 'node:process';
+
+export type ServerContext = {
   cloudflare?: {
     env?: unknown;
   };
@@ -11,7 +13,7 @@ export function getServerEnv(context?: ServerContext): Env {
     return cloudflareEnv as Env;
   }
 
-  return process.env as unknown as Env;
+  return nodeProcess.env as unknown as Env;
 }
 
 export function getServerEnvRecord(context?: ServerContext): Record<string, string> {
@@ -20,19 +22,19 @@ export function getServerEnvRecord(context?: ServerContext): Record<string, stri
 
 export function getEnvValue(context: ServerContext | undefined, key: string): string | undefined {
   const env = getServerEnv(context) as unknown as Record<string, string | undefined>;
-  return env[key] ?? process.env[key];
+  return env[key] ?? nodeProcess.env[key];
 }
 
 export function createVercelLoadContext(): { cloudflare: { env: Env } } {
   return {
     cloudflare: {
-      env: process.env as unknown as Env,
+      env: nodeProcess.env as unknown as Env,
     },
   };
 }
 
 export function isVercelRuntime(): boolean {
-  return process.env.VERCEL === '1';
+  return nodeProcess.env.VERCEL === '1';
 }
 
 export function isCloudflarePagesRuntime(context?: ServerContext): boolean {
