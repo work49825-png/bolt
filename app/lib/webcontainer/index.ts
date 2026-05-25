@@ -1,4 +1,4 @@
-import { WebContainer } from '@webcontainer/api';
+import type { WebContainer } from '@webcontainer/api';
 import { WORK_DIR_NAME } from '~/utils/constants';
 import { cleanStackTrace } from '~/utils/stacktrace';
 
@@ -22,11 +22,13 @@ if (!import.meta.env.SSR) {
   webcontainer =
     import.meta.hot?.data.webcontainer ??
     Promise.resolve()
-      .then(() => {
-        return WebContainer.boot({
+      .then(async () => {
+        const { WebContainer: WC } = await import('@webcontainer/api');
+
+        return WC.boot({
           coep: 'credentialless',
           workdirName: WORK_DIR_NAME,
-          forwardPreviewErrors: true, // Enable error forwarding from iframes
+          forwardPreviewErrors: true,
         });
       })
       .then(async (webcontainer) => {
