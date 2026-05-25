@@ -10,7 +10,9 @@ export default async function handleRequest(
 ) {
   // All imports are dynamic to avoid pulling browser-only packages into the
   // server bundle at module-load time (e.g. react-dnd-html5-backend, @webcontainer/api).
-  const { renderToReadableStream } = await import('react-dom/server');
+  // react-dom/server resolves to the Node stream API in Node.js environments.
+  // We need the Web Streams version (renderToReadableStream) from react-dom/server.browser.
+  const { renderToReadableStream } = await import('react-dom/server.browser' as string);
   const { isbot } = await import('isbot');
   const { renderHeadToString } = await import('remix-island');
   const { Head } = await import('./root');
