@@ -28,8 +28,9 @@ export default async function handleRequest(
     });
   } catch (err) {
     console.error('[entry.server] renderToReadableStream threw:', err);
+    const msg = err instanceof Error ? `${err.message}\n${err.stack}` : String(err);
 
-    return new Response('Internal Server Error', { status: 500 });
+    return new Response(`SSR Error: ${msg}`, { status: 500, headers: { 'Content-Type': 'text/plain' } });
   }
 
   let head = '';
