@@ -16,22 +16,44 @@ export default async function handleRequest(
   responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
   responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
 
-  const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
-    signal: request.signal,
-    onError(error: unknown) {
-      console.error(error);
-      responseStatusCode = 500;
-    },
-  });
+  let readable: ReadableStream<Uint8Array>;
+
+  try {
+    readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
+      signal: request.signal,
+      onError(error: unknown) {
+        console.error('[entry.server] Render error:', error);
+        responseStatusCode = 500;
+      },
+    });
+  } catch (err) {
+    console.error('[entry.server] renderToReadableStream threw:', err);
+
+    return new Response('Internal Server Error', { status: 500 });
+  }
+
+  let head = '';
+
+  try {
+    head = renderHeadToString({ request, remixContext, Head });
+  } catch (err) {
+    console.error('[entry.server] renderHeadToString threw:', err);
+  }
+
+  const theme = (() => {
+    try {
+      return themeStore.get();
+    } catch {
+      return 'light';
+    }
+  })();
 
   const body = new ReadableStream({
     start(controller) {
-      const head = renderHeadToString({ request, remixContext, Head });
-
       controller.enqueue(
         new Uint8Array(
           new TextEncoder().encode(
-            `<!DOCTYPE html><html lang="en" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
+            `<!DOCTYPE html><html lang="en" data-theme="${theme}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
           ),
         ),
       );
