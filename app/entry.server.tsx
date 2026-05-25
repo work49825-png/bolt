@@ -2,9 +2,6 @@ import type { AppLoadContext } from '@remix-run/cloudflare';
 import { RemixServer } from '@remix-run/react';
 import { isbot } from 'isbot';
 import { renderToReadableStream } from 'react-dom/server';
-import { renderHeadToString } from 'remix-island';
-import { Head } from './root';
-import { themeStore } from '~/lib/stores/theme';
 
 export default async function handleRequest(
   request: Request,
@@ -13,6 +10,14 @@ export default async function handleRequest(
   remixContext: any,
   _loadContext: AppLoadContext,
 ) {
+  // Lazy-import modules that pull in browser-only packages (e.g. react-dnd-html5-backend)
+  // at request time instead of at module load time, to avoid crashing the Node.js bundle.
+  const [{ renderHeadToString }, { Head }, { themeStore }] = await Promise.all([
+    import('remix-island'),
+    import('./root'),
+    import('~/lib/stores/theme'),
+  ]);
+
   responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
   responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
 
@@ -22,7 +27,7 @@ export default async function handleRequest(
     readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
       signal: request.signal,
       onError(error: unknown) {
-        console.error('[entry.server] Render error:', error);
+        console.error('[entry.server] render error:', error);
         responseStatusCode = 500;
       },
     });
