@@ -1,5 +1,6 @@
 import { type ActionFunctionArgs, json } from '@remix-run/cloudflare';
-import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getProviderSettingsFromCookie } from '~/lib/api/cookies';
+import { getMergedApiKeys } from '~/lib/.server/provider-env-keys';
 import { refineIntent } from '~/lib/orchestration/intent-refiner.server';
 import type { ProviderInfo } from '~/types/model';
 import { createScopedLogger } from '~/utils/logger';
@@ -28,7 +29,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
     }
 
     const cookieHeader = request.headers.get('Cookie');
-    const apiKeys = getApiKeysFromCookie(cookieHeader);
+    const apiKeys = getMergedApiKeys(context, cookieHeader);
     const providerSettings = getProviderSettingsFromCookie(cookieHeader);
 
     const buildSpec = await refineIntent({

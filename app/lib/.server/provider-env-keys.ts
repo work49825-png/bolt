@@ -1,6 +1,8 @@
 import process from 'node:process';
 import type { BaseProvider } from '~/lib/modules/llm/base-provider';
-import { getEnvValue, type ServerContext } from '~/lib/.server/get-server-env';
+import { getApiKeysFromCookie } from '~/lib/api/cookies';
+import { LLMManager } from '~/lib/modules/llm/manager';
+import { getEnvValue, getServerEnvRecord, type ServerContext } from '~/lib/.server/get-server-env';
 
 /** Node's real process.env — not affected by client polyfills in the server bundle. */
 export function getNodeEnvValue(key: string): string | undefined {
@@ -64,4 +66,30 @@ export function resolveDefaultProvider(
   const openai = providers.find((p) => p.name === 'OpenAI');
 
   return openai ?? providers[0];
+}
+
+/** Merge cookie API keys with server env vars (e.g. OPENAI_API_KEY on Vercel). */
+export function getMergedApiKeys(context: ServerContext | undefined, cookieHeader: string | null): Record<string, string> {
+  const apiKeys = { ...getApiKeysFromCookie(cookieHeader) };
+  const llmManager = LLMManager.getInstance(getServerEnvRecord(context));
+
+  for (const provider of llmManager.getAllProviders()) {
+    if (apiKeys[provider.name]) {
+      continue;
+    }
+
+    const tokenKey = provider.config.apiTokenKey;
+
+    if (!tokenKey) {
+      continue;
+    }
+
+    const value = getEnvValue(context, tokenKey) ?? getNodeEnvValue(tokenKey);
+
+    if (value) {
+      apiKeys[provider.name] = value;
+    }
+  }
+
+  return apiKeys;
 }

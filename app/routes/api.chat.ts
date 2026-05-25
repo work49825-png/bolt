@@ -16,6 +16,7 @@ import { MCPService } from '~/lib/services/mcpService';
 import { StreamRecoveryManager } from '~/lib/.server/llm/stream-recovery';
 import { messagesHaveOrchestratedBuild } from '~/lib/orchestration/build-message-utils';
 import { getServerEnv } from '~/lib/.server/get-server-env';
+import { getMergedApiKeys } from '~/lib/.server/provider-env-keys';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
@@ -70,7 +71,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     }>();
 
   const cookieHeader = request.headers.get('Cookie');
-  const apiKeys = JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
+  const apiKeys = getMergedApiKeys(context, cookieHeader);
   const providerSettings: Record<string, IProviderSetting> = JSON.parse(
     parseCookies(cookieHeader || '').providers || '{}',
   );
